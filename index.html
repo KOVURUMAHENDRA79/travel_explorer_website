@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Travel Explorer</title>
+	<meta name="description" content="Discover destinations, check weather, and contact us for your next trip." />
+	<script type="application/ld+json">
+	{
+	  "@context": "https://schema.org",
+	  "@type": "TravelAgency",
+	  "name": "Travel Explorer",
+	  "url": "https://example.com",
+	  "description": "Discover destinations and plan trips with weather, favorites and guides"
+	}
+	</script>
+	<link rel="preconnect" href="https://images.unsplash.com" crossorigin>
+	<link rel="stylesheet" href="styles.css" />
+	<link rel="icon" href="data:,">
+	<link rel="manifest" href="manifest.webmanifest">
+</head>
+<body>
+	<a href="#main" class="sr-only" style="position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;">Skip to main content</a>
+	<header class="site-header">
+		<nav class="navbar" role="navigation" aria-label="Primary">
+			<div class="nav-left">
+				<a href="#home" class="logo" aria-label="Travel Explorer Home">
+					<span class="logo-mark">✈</span>
+					<span class="logo-text">Travel Explorer</span>
+				</a>
+			</div>
+
+			<button id="hamburger-btn" class="hamburger" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-links">
+				<span class="bar"></span><span class="bar"></span><span class="bar"></span>
+			</button>
+
+			<div id="nav-links" class="nav-links">
+				<select id="locale-select" class="btn-secondary" aria-label="Language">
+					<option value="en">English</option>
+					<option value="hi">हिन्दी</option>
+				</select>
+				<label class="btn-secondary" for="accent-picker" style="display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
+					<span>Accent</span>
+					<input id="accent-picker" type="color" value="#38bdf8" style="width:32px; height:32px; border:none; background:transparent; padding:0;" />
+				</label>
+				<a href="#home" class="nav-link">Home</a>
+				<a href="#explore" class="nav-link">Destinations</a>
+				<a href="#weather" class="nav-link">Weather</a>
+				<a href="#contact" class="nav-link">Contact</a>
+				<a href="#login" id="nav-auth" class="nav-link" aria-controls="login">Login</a>
+				<span id="nav-user" class="assistive"></span>
+				<button id="dark-mode-toggle" class="dark-toggle" type="button" aria-pressed="false" title="Toggle dark mode">🌙</button>
+			</div>
+		</nav>
+	</header>
+
+	<section id="home" class="hero" role="region" aria-label="Hero">
+		<div class="hero-inner">
+			<h1 class="hero-title">Find Your Next Adventure</h1>
+			<p class="hero-subtitle">Search destinations, check weather, and explore the world.</p>
+
+			<form id="search-form" class="search" role="search" aria-label="Destination search">
+				<label for="search-input" class="sr-only">Search destinations</label>
+				<input id="search-input" name="q" type="search" placeholder="Search destinations (e.g., Paris, Beaches, Mountains)..." autocomplete="off" />
+				<button id="search-btn" type="submit" class="btn-primary">Search</button>
+				<div id="search-loading" class="loading-spinner" aria-hidden="true"></div>
+			</form>
+
+			<p id="search-status" class="assistive" role="status" aria-live="polite"></p>
+		</div>
+	</section>
+
+	<main id="main" class="main" role="main">
+		<section id="explore" class="section section-explore" aria-labelledby="explore-title">
+			<div class="section-header">
+				<h2 id="explore-title">Explore Destinations</h2>
+			</div>
+
+		<div id="filters" class="assistive" aria-label="Filters">
+			<div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+				<button class="btn-secondary" data-filter="all" aria-pressed="true">All</button>
+				<button class="btn-secondary" data-filter="beach">Beaches</button>
+				<button class="btn-secondary" data-filter="heritage">Heritage</button>
+				<button class="btn-secondary" data-filter="mountain">Mountains</button>
+				<button class="btn-secondary" data-filter="spiritual">Spiritual</button>
+				<button class="btn-secondary" data-filter="city">City</button>
+				<select id="filter-region" class="btn-secondary" aria-label="Region">
+					<option value="all">All Regions</option>
+					<option value="north">North</option>
+					<option value="south">South</option>
+					<option value="east">East</option>
+					<option value="west">West</option>
+				</select>
+				<select id="filter-season" class="btn-secondary" aria-label="Best season">
+					<option value="any">Any season</option>
+					<option value="winter">Winter</option>
+					<option value="summer">Summer</option>
+					<option value="monsoon">Monsoon</option>
+				</select>
+				<select id="filter-price" class="btn-secondary" aria-label="Price range">
+					<option value="any">Any price</option>
+					<option value="budget">Budget</option>
+					<option value="mid">Mid</option>
+					<option value="premium">Premium</option>
+				</select>
+			</div>
+
+			<p class="assistive">Use filters to refine destinations.</p>
+		</div>
+
+			<div id="destinations-status" class="section-status" role="status" aria-live="polite"></div>
+
+			<div id="destinations-grid" class="destinations-grid" data-view="all" aria-label="Destination results grid">
+				<!-- Cards injected here -->
+			</div>
+			<!-- Destination detail modal -->
+			<div id="detail-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+				<div class="modal-content">
+					<h3 id="detail-title">Destination</h3>
+					<div id="detail-body" class="assistive"></div>
+					<div id="detail-map" style="height:240px; margin:10px 0;">
+						<iframe id="detail-map-iframe" title="Map" width="100%" height="100%" style="border:0;" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+					</div>
+					<div style="display:flex; gap:8px; flex-wrap:wrap;">
+						<a id="detail-book-hotels" class="btn-secondary" target="_blank" rel="noopener">Hotels</a>
+						<a id="detail-book-flights" class="btn-secondary" target="_blank" rel="noopener">Flights</a>
+					</div>
+					<div style="margin-top:10px;">
+						<h4 style="margin:6px 0;">Reviews</h4>
+						<ul id="detail-reviews" style="list-style:none; padding:0; margin:0;"></ul>
+						<form id="detail-review-form" class="weather-form" autocomplete="off" style="margin-top:8px;">
+							<label for="detail-review-text" class="sr-only">Your review</label>
+							<input id="detail-review-text" type="text" placeholder="Write a review…" />
+							<button type="submit" class="btn-secondary">Submit</button>
+						</form>
+					</div>
+					<button id="detail-close" class="btn-secondary" style="margin-top:10px;">Close</button>
+				</div>
+			</div>
+			<div class="pagination">
+				<button id="prev-page" disabled>⬅ Prev</button>
+				<span id="page-info"></span>
+				<button id="next-page">Next ➡</button>
+			</div>
+		</section>
+
+		<section id="weather" class="section section-weather" aria-labelledby="weather-title">
+			<div class="section-header">
+				<h2 id="weather-title">Weather Dashboard</h2>
+			</div>
+
+			<article id="weather-card" class="weather-card" aria-live="polite">
+				<div class="weather-top">
+					<div>
+						<h3 id="weather-location" class="weather-location">Loading location…</h3>
+						<p id="weather-description" class="weather-description">—</p>
+					</div>
+					<img id="weather-icon" class="weather-icon" src="" alt="" />
+				</div>
+				<div class="weather-bottom">
+					<p class="weather-temp"><span id="weather-temp">—</span>°C</p>
+					<form id="weather-form" class="weather-form" autocomplete="off">
+						<label for="weather-city" class="sr-only">Enter city</label>
+						<input id="weather-city" type="text" placeholder="Enter city…" list="city-list" />
+						<button type="submit" class="btn-secondary">Get Weather</button>
+						<button id="unit-toggle" type="button" class="btn-secondary" aria-pressed="false" title="Toggle units">°C</button>
+						<div id="weather-loading" class="loading-spinner small" aria-hidden="true"></div>
+					</form>
+					<datalist id="city-list">
+						<option value="Mumbai"></option>
+						<option value="Delhi"></option>
+						<option value="Jaipur"></option>
+						<option value="Agra"></option>
+						<option value="Goa"></option>
+						<option value="Varanasi"></option>
+						<option value="Udaipur"></option>
+						<option value="Leh"></option>
+						<option value="Rishikesh"></option>
+						<option value="Kochi"></option>
+					</datalist>
+					<div id="weather-forecast" class="assistive" aria-live="polite"></div>
+					<p id="weather-error" class="form-error" role="alert" aria-live="assertive"></p>
+				</div>
+			</article>
+		</section>
+
+		<section id="contact" class="section section-contact" aria-labelledby="contact-title">
+			<div class="section-header">
+				<h2 id="contact-title">Contact Us</h2>
+				<p>Questions or suggestions? We’d love to hear from you.</p>
+			</div>
+
+			<form id="contact-form" class="contact-form" novalidate>
+				<div class="form-field">
+					<label for="contact-name">Name</label>
+					<input id="contact-name" name="name" type="text" placeholder="Your name" required />
+					<p class="form-error" id="error-name" role="alert"></p>
+				</div>
+				<div class="form-field">
+					<label for="contact-email">Email</label>
+					<input id="contact-email" name="email" type="email" placeholder="you@example.com" required />
+					<p class="form-error" id="error-email" role="alert"></p>
+				</div>
+				<div class="form-field">
+					<label for="contact-message">Message</label>
+					<textarea id="contact-message" name="message" rows="5" placeholder="Your message…" required></textarea>
+					<p class="form-error" id="error-message" role="alert"></p>
+				</div>
+
+				<div class="form-actions">
+					<button type="submit" class="btn-primary">Send Message</button>
+					<button type="button" id="view-submissions" class="btn-secondary">View Submissions</button>
+				</div>
+
+				<p id="contact-success" class="form-success" role="status" aria-live="polite"></p>
+			</form>
+		</section>
+
+		<section id="favorites" class="section" aria-labelledby="favorites-title">
+			<h2 id="favorites-title">My Favorites ❤️</h2>
+			<div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+				<button id="favorites-export" class="btn-secondary" type="button">Export</button>
+				<label class="btn-secondary" for="favorites-import-input" style="display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
+					Import <input id="favorites-import-input" type="file" accept="application/json" style="display:none;" />
+				</label>
+			</div>
+			<div id="favorites-grid" class="destinations-grid"></div>
+			<p id="favorites-status"></p>
+		</section>
+
+		<section id="login" class="section" aria-labelledby="login-title">
+			<div class="section-header">
+				<h2 id="login-title">Login</h2>
+				<p class="assistive">Access your favorites across sessions on this device.</p>
+			</div>
+
+			<form id="login-form" class="contact-form" autocomplete="off">
+				<div class="form-field">
+					<label for="login-email">Email</label>
+					<input id="login-email" name="email" type="email" placeholder="you@example.com" required />
+				</div>
+				<div class="form-field">
+					<label for="login-password">Password</label>
+					<div style="display:grid; grid-template-columns: 1fr auto; gap:8px; align-items:center;">
+						<input id="login-password" name="password" type="password" placeholder="Your password" required />
+						<button id="toggle-password" type="button" class="btn-secondary" aria-pressed="false" aria-label="Show password">Show</button>
+					</div>
+					<p class="assistive">Demo only. No data leaves your browser.</p>
+				</div>
+				<label style="display:flex; align-items:center; gap:8px; margin:8px 0;">
+					<input id="login-remember" type="checkbox" />
+					<span>Remember me on this device</span>
+				</label>
+				<div class="form-actions">
+					<button type="submit" class="btn-primary">Sign In</button>
+				</div>
+				<p id="login-error" class="form-error" role="alert"></p>
+				<p id="login-success" class="form-success" role="status" aria-live="polite"></p>
+				<p class="assistive" style="margin-top:8px;">
+					<a href="#" id="link-signup">Create account</a> · <a href="#" id="link-reset">Forgot password?</a>
+				</p>
+			</form>
+		</section>
+	</main>
+
+	<footer class="site-footer">
+		<p>© <span id="year"></span> Travel Explorer. All rights reserved.</p>
+		<nav class="social" aria-label="Social links">
+			<a href="#" aria-label="Twitter" class="social-link">Twitter</a>
+			<a href="#" aria-label="Instagram" class="social-link">Instagram</a>
+			<a href="#" aria-label="Facebook" class="social-link">Facebook</a>
+		</nav>
+	</footer>
+
+	<!-- Cookie Consent Banner -->
+	<div id="consent-banner" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="consent-title">
+		<div class="modal-content">
+			<h3 id="consent-title">We use cookies</h3>
+			<p>We use local storage and cookies to improve your experience. By clicking Accept, you consent.</p>
+			<div class="form-actions">
+				<button id="consent-accept" class="btn-primary" type="button">Accept</button>
+				<button id="consent-decline" class="btn-secondary" type="button">Decline</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Modal for Contact Submissions -->
+	<div id="submissions-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="submissions-title">
+		<div class="modal-content">
+			<h3 id="submissions-title">Contact Form Submissions</h3>
+			<ul id="submissions-list"></ul>
+			<button id="close-modal" class="btn-secondary">Close</button>
+		</div>
+	</div>
+
+	<script src="script.js" defer></script>
+</body>
+</html>
